@@ -104,6 +104,7 @@ namespace BlackHole
                         {
                             case "home":
                                 PackageHost.PushStateObject("TextToSpeech", new { text = "Voici les infos, " });
+                                Thread.Sleep(1000);
                                 Info(HWM, FIO, DI);
                                 break;
                             default:
@@ -116,7 +117,7 @@ namespace BlackHole
                         switch (menu)
                         {
                             case "home":
-                                PackageHost.PushStateObject("TextToSpeech", new { text = "Requete" });
+                                PackageHost.PushStateObject("TextToSpeech", new { text = "Requête" });
                                 menu = "Request";
                                 break;
                             case "Request":
@@ -144,7 +145,7 @@ namespace BlackHole
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "pushbullet" });
                                 break;
                             case "Request":
-                                PackageHost.PushStateObject("TextToSpeech", new { text = "gougueule trafic, daipart" });
+                                PackageHost.PushStateObject("TextToSpeech", new { text = "gougueule trafic, départ" });
                                 Thread.Sleep(2500);
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "googleTraffic1" });
                                 menu = "Home";
@@ -186,7 +187,7 @@ namespace BlackHole
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpTraffic2" });
                     break;
                 case "ratpTraffic2":
-                    ratpTrafficArg.arg2 = Converter(result);
+                    ratpTrafficArg.arg2 = result; // Converter()
                     RatpGetTraffic();
                     break;
                 case "ratpPlanning1":
@@ -196,7 +197,7 @@ namespace BlackHole
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning2" });
                     break;
                 case "ratpPlanning2":
-                    ratpPlanningArg.arg2 = Converter(result);
+                    ratpPlanningArg.arg2 = result; // Converter()
                     PackageHost.PushStateObject("TextToSpeech", new { text = "station" });
                     Thread.Sleep(1000);
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning3" });
@@ -479,6 +480,7 @@ namespace BlackHole
             PackageHost.SendMessage(MessageScope.Create("Ratp").OnSagaResponse((result) =>
             {
                 annonce = result.message;
+                PackageHost.WriteInfo($"J'ai reçu ma réponse: {result.message}");
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
             }), "GetTraffic", new object[] { ratpTrafficArg.arg1, "1" });
 
