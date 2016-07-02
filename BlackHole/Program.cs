@@ -185,7 +185,7 @@ namespace BlackHole
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpTraffic2" });
                     break;
                 case "ratpTraffic2":
-                    ratpTrafficArg.arg2 = result;
+                    ratpTrafficArg.arg2 = Converter(result);
                     RatpGetTraffic();
                     break;
                 case "ratpPlanning1":
@@ -195,7 +195,7 @@ namespace BlackHole
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning2" });
                     break;
                 case "ratpPlanning2":
-                    ratpPlanningArg.arg2 = result;
+                    ratpPlanningArg.arg2 = Converter(result);
                     PackageHost.PushStateObject("TextToSpeech", new { text = "station" });
                     Thread.Sleep(1000);
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning3" });
@@ -229,6 +229,57 @@ namespace BlackHole
             }
         }
 
+        string Converter(string result)
+        {
+            if (result.Contains("un"))
+            {
+                return "1";
+            }
+            else if (result.Contains("deux"))
+            {
+                return "2";
+            }
+            else if (result.Contains("trois"))
+            {
+                return "3";
+            }
+            else if (result.Contains("quatre"))
+            {
+                return "4";
+            }
+            else if (result.Contains("cinq"))
+            {
+                return "5";
+            }
+            else if (result.Contains("six"))
+            {
+                return "6";
+            }
+            else if (result.Contains("sept"))
+            {
+                return "7";
+            }
+            else if (result.Contains("huit"))
+            {
+                return "8";
+            }
+            else if (result.Contains("neuf"))
+            {
+                return "9";
+            }
+            else if (result.Contains("dix"))
+            {
+                return "10";
+            }
+            else if (result.Contains("onze"))
+            {
+                return "11";
+            }
+            else
+            {
+                return "12";
+            }
+        }
 
         void Settings()
         {
