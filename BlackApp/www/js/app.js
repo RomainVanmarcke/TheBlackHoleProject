@@ -25,7 +25,8 @@ angular.module('blackapp', ['ionic', 'ngCordova', 'ngConstellation'])
 
 .controller('BlackCtrl', ['$scope', '$cordovaDeviceMotion', 'constellationConsumer', '$timeout',
     function ($scope, $cordovaDeviceMotion, constellation, $timeout) {
-
+        var myrate = 1;                 //vitesse d'élocution pour le tts
+        var reason = "";
         $scope.state = false;
         //constellation.intializeClient("http://192.168.43.32:8088", "21affda431649385c6ff45c10f7043b46d09d821", "BlackClient");
         constellation.intializeClient("http://192.168.0.12:8088", "21affda431649385c6ff45c10f7043b46d09d821", "BlackClient");
@@ -62,9 +63,52 @@ angular.module('blackapp', ['ionic', 'ngCordova', 'ngConstellation'])
 
         constellation.onConnectionStateChanged(function (change) {
             if (change.newState === $.signalR.connectionState.connected) {
-                constellation.requestSubscribeStateObjects("*", "BlackMenu", "Movements", "*");
+                constellation.requestSubscribeStateObjects("*", "BlackHole", "*", "*");
                 constellation.sendMessage({ Scope: 'Package', Args: ['BlackConnector'] }, 'SOModifier', ['accelerometer', { "State": $scope.state, "X": 0, "Y": 0, "Z": 0 }]);
 
             }
         });
-    }])
+
+        constellation.onUpdateStateObject(function (stateobject) {
+            $scope.$apply(function () {
+                if (stateobject.Name === "TextToSpeech") {
+                    textTo(stateobject.Value.text);
+                }
+                if (stateobject.Name === "NeedRecognition") {
+                    reason = stateobject.Value.Reason;
+                    recognition.start();
+                }
+            })
+
+        })
+
+        function textTo(message) {          //fonction à appeler pour faire parler le device
+            TTS.speak({
+                text: message,
+                locale: 'fr-FR',
+                rate: myrate
+            });
+        }
+
+        RetourRecognitionResult = function (textReco) {         // Fonction qui renvoie les resultats de la voice recognition dans BlackHole 
+
+            constellation.sendMessage({ Scope: 'Package', Args: ['BlackHole'] }, 'UseRecognition', [reason, textReco]);
+            constellation.sendMessage({ Scope: 'Package', Args: ['BlackConnector'] }, 'SOModifier', ['RecognitionResult', { "Reason": reason, "Text": textReco }]); // SO pour vérifier la Voice Recognition
+
+        }
+    }]);
+
+//var reason = "";
+var recognition;
+document.addEventListener('deviceready', onDeviceReady, false);
+
+function onDeviceReady() {                                        // recognition.start() pour démarrer cette fonction (reconnaissance vocale)
+    recognition = new SpeechRecognition();
+    recognition.lang = 'fr-Fr';
+    recognition.onresult = function (event) {
+        if (event.results.length > 0) {
+            var text = event.results[0][0].transcript;
+        }
+        RetourRecognitionResult(text);
+    }
+}

@@ -144,7 +144,7 @@ namespace BlackHole
                                 break;
                             case "Request":
                                 PackageHost.PushStateObject("TextToSpeech", new { text = "gougueule trafic, daipart" });
-                                Thread.Sleep(2000);
+                                Thread.Sleep(2500);
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "googleTraffic1" });
                                 menu = "Home";
                                 break;
@@ -401,7 +401,7 @@ namespace BlackHole
             }
         }
 
-        void RatpGetTraffic()
+        void RatpGetSchedule()
         {
             string annonce = "les prochaines arrivees: ";
             string s;
@@ -420,25 +420,31 @@ namespace BlackHole
             PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
         }
 
-        void RatpGetSchedule()
+        void RatpGetTraffic()
         {
-            string annonce = "";
+            string annonce = "Je n'ai pas reçu de réponse";
+            PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetTraffic avec comme type: { ratpTrafficArg.arg1} et comme ligne: {ratpTrafficArg.arg2}");
             MessageScope.Create("Ratp").OnSagaResponse(result =>
             {
+                PackageHost.WriteInfo($"le resultat de RATP traffic est {result}");
                 annonce = result;
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
             }).GetProxy().GetTraffic(new { type = ratpTrafficArg.arg1, line = ratpTrafficArg.arg2 });
-            PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+            //}).GetProxy().GetTraffic(new { type = "metro", line = "1" });
+
         }
 
         void PushBullet()
         {
-            MessageScope.Create("PushBullet").GetProxy().SendPush(new { Iden = "CONFIG", Title = "BlackBullet", Message = ratpTrafficArg.arg1 });
+            //MessageScope.Create("PushBullet").GetProxy().SendPush(new { Iden = "CONFIG", Title = "BlackBullet", Message = pushbulletArg.arg1 }); // NE FONCTIONNE PAS AVEC UN IDEN ???
+            MessageScope.Create("PushBullet").GetProxy().SendPush(new { Title = "BlackBullet", Message = pushbulletArg.arg1 });
+
         }
 
         void GoogleTraffic()
         {
             string annonce = "";
-
+            PackageHost.WriteInfo($"J'ai exécuté la fonction GoogleTraffic avec comme départ: {googleTrafficArg.arg1} et comme arrivée: {googleTrafficArg.arg2}");
             MessageScope.Create("GoogleTraffic").OnSagaResponse(result =>
             {
                 annonce = $"Pour aller de {googleTrafficArg.arg1} a {googleTrafficArg.arg2}, il faut voyager {result.Data[0].Name}, le temps de trajet avec traffic sera de {result.Data[0].InfoTraffic}, la distance est de : {result.Data[0].DistanceString}";
