@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BlackHole.GoogleTraffic.MessageCallbacks;
 
 namespace BlackHole
 {
@@ -424,13 +425,11 @@ namespace BlackHole
         {
             string annonce = "Je n'ai pas reçu de réponse";
             PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetTraffic avec comme type: { ratpTrafficArg.arg1} et comme ligne: {ratpTrafficArg.arg2}");
-            MessageScope.Create("Ratp").OnSagaResponse(result =>
+            PackageHost.SendMessage(MessageScope.Create("Ratp").OnSagaResponse((result) =>
             {
-                PackageHost.WriteInfo($"le resultat de RATP traffic est {result}");
-                annonce = result;
+                annonce = result.message;
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
-            }).GetProxy().GetTraffic(new { type = ratpTrafficArg.arg1, line = ratpTrafficArg.arg2 });
-            //}).GetProxy().GetTraffic(new { type = "metro", line = "1" });
+            }), "GetTraffic", new object[] { ratpTrafficArg.arg1, "1" });
 
         }
 
@@ -445,11 +444,22 @@ namespace BlackHole
         {
             string annonce = "";
             PackageHost.WriteInfo($"J'ai exécuté la fonction GoogleTraffic avec comme départ: {googleTrafficArg.arg1} et comme arrivée: {googleTrafficArg.arg2}");
-            MessageScope.Create("GoogleTraffic").OnSagaResponse(result =>
+            var u = MyConstellation.PackageInstances.ROMAIN_MSI_GoogleTraffic.CreateGoogleTrafficScope().GetRoutes(googleTrafficArg.arg1, googleTrafficArg.arg2);
+            if (u.Wait(15000) && u.IsCompleted)
             {
-                annonce = $"Pour aller de {googleTrafficArg.arg1} a {googleTrafficArg.arg2}, il faut voyager {result.Data[0].Name}, le temps de trajet avec traffic sera de {result.Data[0].InfoTraffic}, la distance est de : {result.Data[0].DistanceString}";
-            }).GetProxy().GetRoutes(new { from = googleTrafficArg.arg1, to = googleTrafficArg.arg2 });
-            PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+                var bestroute = u.Result.OrderBy(k => k.TimeWithTraffic).FirstOrDefault();
+                annonce = $"Pour aller de {googleTrafficArg.arg1} a {googleTrafficArg.arg2}, il faut voyager {bestroute.Name}, le temps de trajet avec traffic sera de {bestroute.InfoTraffic}, la distance est de : {bestroute.DistanceString}";
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+            }
+            else
+            {
+                annonce = "La réponse a mis trop de temps pour arriver";
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+
+            }
         }
     }
 }
+
+
+

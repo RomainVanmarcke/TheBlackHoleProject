@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MyConstellation.generated.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -70,7 +71,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties PublishMethod="ConstellationServer" PublishServer="http://localhost:8088" />
+      <UserProperties PackagesSelection="&lt;ArrayOfTupleOfstringstring xmlns:i=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns=&quot;http://schemas.datacontract.org/2004/07/System&quot;&gt;&lt;TupleOfstringstring&gt;&lt;m_Item1&gt;ROMAIN-MSI&lt;/m_Item1&gt;&lt;m_Item2&gt;GoogleTraffic&lt;/m_Item2&gt;&lt;/TupleOfstringstring&gt;&lt;/ArrayOfTupleOfstringstring&gt;" PublishMethod="ConstellationServer" PublishServer="http://localhost:8088" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

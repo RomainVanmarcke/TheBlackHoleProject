@@ -63,7 +63,7 @@ angular.module('blackapp', ['ionic', 'ngCordova', 'ngConstellation'])
 
         constellation.onConnectionStateChanged(function (change) {
             if (change.newState === $.signalR.connectionState.connected) {
-                constellation.requestSubscribeStateObjects("*", "BlackHole", "*", "*");
+                constellation.subscribeStateObjects("*", "BlackHole", "*", "*");
                 constellation.sendMessage({ Scope: 'Package', Args: ['BlackConnector'] }, 'SOModifier', ['accelerometer', { "State": $scope.state, "X": 0, "Y": 0, "Z": 0 }]);
 
             }
