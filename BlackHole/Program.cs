@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BlackHole.GoogleTraffic.MessageCallbacks;
+using BlackHole.Ratp.MessageCallbacks;
 
 namespace BlackHole
 {
@@ -181,23 +182,23 @@ namespace BlackHole
                     Settings();
                     break;
                 case "ratpTraffic1":
-                    ratpTrafficArg.arg1 = result;
+                    ratpTrafficArg.arg1 = Converter(result); // Converter()
                     PackageHost.PushStateObject("TextToSpeech", new { text = "ligne" });
                     Thread.Sleep(1000);
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpTraffic2" });
                     break;
                 case "ratpTraffic2":
-                    ratpTrafficArg.arg2 = result; // Converter()
+                    ratpTrafficArg.arg2 = Converter(result); // Converter()
                     RatpGetTraffic();
                     break;
                 case "ratpPlanning1":
-                    ratpPlanningArg.arg1 = result;
+                    ratpPlanningArg.arg1 = Converter(result); // Converter()
                     PackageHost.PushStateObject("TextToSpeech", new { text = "ligne" });
                     Thread.Sleep(1000);
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning2" });
                     break;
                 case "ratpPlanning2":
-                    ratpPlanningArg.arg2 = result; // Converter()
+                    ratpPlanningArg.arg2 = Converter(result); // Converter()
                     PackageHost.PushStateObject("TextToSpeech", new { text = "station" });
                     Thread.Sleep(1000);
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning3" });
@@ -209,7 +210,7 @@ namespace BlackHole
                     PackageHost.PushStateObject("NeedRecognition", new { Reason = "ratpPlanning4" });
                     break;
                 case "ratpPlanning4":
-                    ratpPlanningArg.arg4 = result;
+                    ratpPlanningArg.arg4 = Converter(result); // Converter()
                     RatpGetSchedule();
                     break;
                 case "pushbullet":
@@ -233,9 +234,17 @@ namespace BlackHole
 
         string Converter(string result)
         {
-            if (result.Contains("un"))
+            if (result.Contains("métro"))
+            {
+                return "metro";
+            }
+            else if (result.Contains("un"))
             {
                 return "1";
+            }
+            else if (result.Contains("défense"))
+            {
+                return "la defense";
             }
             else if (result.Contains("deux"))
             {
@@ -277,9 +286,13 @@ namespace BlackHole
             {
                 return "11";
             }
-            else
+            else if (result.Contains("douze"))
             {
                 return "12";
+            }
+            else
+            {
+                return result;
             }
         }
 
@@ -457,32 +470,55 @@ namespace BlackHole
         void RatpGetSchedule()
         {
             string annonce = "les prochaines arrivees: ";
-            string s;
-            MessageScope.Create("Ratp").OnSagaResponse(result =>
+            PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetSchedule avec comme type: { ratpPlanningArg.arg1}, comme ligne: {ratpPlanningArg.arg2}, comme station: {ratpPlanningArg.arg3} et comme destination: {ratpPlanningArg.arg4}");
+            //string s;
+            //MessageScope.Create("Ratp").OnSagaResponse(result =>
+            //{
+            //    for (int i = 0; i < 4; i++)
+            //    {
+            //        s = result.Data[i].message;
+            //        if (s.Contains("mn"))
+            //        {
+            //            s = $"{s[0]}{s[1]} minutes";
+            //        };
+            //        annonce = $"{annonce} {s}, ";
+            //    }
+            //}).GetProxy().GetSchedule(new { type = ratpPlanningArg.arg1, line = ratpPlanningArg.arg2, station = ratpPlanningArg.arg3, direction = ratpPlanningArg.arg4 });
+            //PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+
+            var x = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetSchedule(type: ratpPlanningArg.arg1, line: ratpPlanningArg.arg2, station: ratpPlanningArg.arg3, direction: ratpPlanningArg.arg4);
+            if (x.Wait(5000) && x.IsCompleted)
             {
-                for (int i = 0; i < 4; i++)
+                foreach (var arrivees in x.Result)
                 {
-                    s = result.Data[i].message;
-                    if (s.Contains("mn"))
-                    {
-                        s = $"{s[0]}{s[1]} minutes";
-                    };
-                    annonce = $"{annonce} {s}, ";
+                    annonce = annonce + $"{arrivees.message}";
                 }
-            }).GetProxy().GetSchedule(new { type = ratpPlanningArg.arg1, line = ratpPlanningArg.arg2, station = ratpPlanningArg.arg3, direction = ratpPlanningArg.arg4 });
-            PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+            }
+            else
+            {
+                annonce = "La réponse a mis trop de temps pour arriver";
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+            }
         }
 
         void RatpGetTraffic()
         {
             string annonce = "Je n'ai pas reçu de réponse";
             PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetTraffic avec comme type: { ratpTrafficArg.arg1} et comme ligne: {ratpTrafficArg.arg2}");
-            PackageHost.SendMessage(MessageScope.Create("Ratp").OnSagaResponse((result) =>
+
+            var t = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetTraffic(type: ratpTrafficArg.arg1 , line: ratpTrafficArg.arg2);
+            if (t.Wait(5000) && t.IsCompleted)
             {
-                annonce = result.message;
-                PackageHost.WriteInfo($"J'ai reçu ma réponse: {result.message}");
+                annonce = $"{t.Result.message} {t.Result.line}";
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
-            }), "GetTraffic", new object[] { ratpTrafficArg.arg1, "1" });
+            }
+            else
+            {
+                annonce = "La réponse a mis trop de temps pour arriver";
+                PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
+            }
+
 
         }
 
@@ -498,6 +534,7 @@ namespace BlackHole
             string annonce = "";
             PackageHost.WriteInfo($"J'ai exécuté la fonction GoogleTraffic avec comme départ: {googleTrafficArg.arg1} et comme arrivée: {googleTrafficArg.arg2}");
             var u = MyConstellation.PackageInstances.ROMAIN_MSI_GoogleTraffic.CreateGoogleTrafficScope().GetRoutes(googleTrafficArg.arg1, googleTrafficArg.arg2);
+
             if (u.Wait(15000) && u.IsCompleted)
             {
                 var bestroute = u.Result.OrderBy(k => k.TimeWithTraffic).FirstOrDefault();
@@ -508,7 +545,6 @@ namespace BlackHole
             {
                 annonce = "La réponse a mis trop de temps pour arriver";
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
-
             }
         }
     }

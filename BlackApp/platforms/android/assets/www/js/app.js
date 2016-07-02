@@ -29,7 +29,7 @@ angular.module('blackapp', ['ionic', 'ngCordova', 'ngConstellation'])
         var reason = "";
         $scope.state = false;
         //constellation.intializeClient("http://192.168.43.32:8088", "21affda431649385c6ff45c10f7043b46d09d821", "BlackClient");
-        constellation.intializeClient("http://192.168.0.12:8088", "21affda431649385c6ff45c10f7043b46d09d821", "BlackClient");
+        constellation.intializeClient("http://192.168.0.10:8088", "21affda431649385c6ff45c10f7043b46d09d821", "BlackClient");
 
         constellation.connect();
 

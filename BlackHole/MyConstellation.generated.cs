@@ -38,6 +38,11 @@ namespace BlackHole
 		public enum PackageInstances
 		{
 			/// <summary>
+            /// Package 'Ratp' on 'ROMAIN-MSI'
+            /// </summary>
+			[RealName("ROMAIN-MSI/Ratp")]
+			ROMAIN_MSI_Ratp,
+			/// <summary>
             /// Package 'GoogleTraffic' on 'ROMAIN-MSI'
             /// </summary>
 			[RealName("ROMAIN-MSI/GoogleTraffic")]
@@ -49,6 +54,11 @@ namespace BlackHole
 		/// </summary>
 		public enum Packages
 		{
+			/// <summary>
+            /// Package 'Ratp'
+            /// </summary>
+			[RealName("Ratp")]
+			Ratp,
 			/// <summary>
             /// Package 'GoogleTraffic'
             /// </summary>
@@ -144,6 +154,235 @@ namespace BlackHole
 		{
 			return RealNameAttribute.GetRealName<MyConstellation.PackageInstances>(package);
 		}
+	}
+}
+
+
+namespace BlackHole.Ratp.MessageCallbacks
+{
+	/// <summary>
+	/// Type 'Response_traffic'
+	/// </summary>
+	public class Response_traffic 
+	{
+		/// <summary>
+		/// The line.
+		/// </summary>
+		public System.String line { get; set; }
+
+		/// <summary>
+		/// The slug.
+		/// </summary>
+		public System.String slug { get; set; }
+
+		/// <summary>
+		/// The title.
+		/// </summary>
+		public System.String title { get; set; }
+
+		/// <summary>
+		/// The message.
+		/// </summary>
+		public System.String message { get; set; }
+
+	}
+
+	/// <summary>
+	/// Type 'Schedule'
+	/// </summary>
+	public class Schedule 
+	{
+		/// <summary>
+		/// The id.
+		/// </summary>
+		public System.String id { get; set; }
+
+		/// <summary>
+		/// The destination.
+		/// </summary>
+		public System.String destination { get; set; }
+
+		/// <summary>
+		/// The message.
+		/// </summary>
+		public System.String message { get; set; }
+
+	}
+
+	/// <summary>
+	/// Provides extension methods for the MessageScope to Ratp
+	/// </summary>
+	public static class RatpExtensions
+	{
+		/// <summary>
+		/// Create a RatpScope
+		/// </summary>
+		/// <param name="scope">The Constellation MessageScope</param>
+		public static RatpScope ToRatpScope(this MessageScope scope)
+		{
+			return new RatpScope(scope);
+		}
+
+		/// <summary>
+		/// Create a RatpScope to all packages of the specified sentinel
+		/// </summary>
+		/// <param name="sentinel">The sentinel</param>
+		public static RatpScope CreateRatpScope(this BlackHole.MyConstellation.Sentinels sentinel)
+		{
+		    return MessageScope.Create(MessageScope.ScopeType.Sentinel, sentinel.GetRealName()).ToRatpScope();        
+		}
+		
+		/// <summary>
+		/// Create a RatpScope to a specific package
+		/// </summary>
+		/// <param name="package">The package</param>
+		public static RatpScope CreateRatpScope(this BlackHole.MyConstellation.PackageInstances package)
+		{
+		    return MessageScope.Create(MessageScope.ScopeType.Package, package.GetRealName()).ToRatpScope();        
+		}
+		
+		/// <summary>
+		/// Create a RatpScope to a specific package
+		/// </summary>
+		/// <param name="package">The package</param>
+		public static RatpScope CreateRatpScope(this BlackHole.MyConstellation.Packages package)
+		{
+		    return MessageScope.Create(MessageScope.ScopeType.Package, package.GetRealName()).ToRatpScope();  
+		}
+	}
+
+	/// <summary>
+    /// Represent a message scope to Ratp
+    /// </summary>
+	public class RatpScope
+	{
+        /// <summary>
+        /// The current scope
+        /// </summary>
+		private MessageScope currentScope = null;
+
+		/// <summary>
+        /// Initializes a new instance of the <see cref="RatpScope"/> class.
+        /// </summary>
+        /// <param name="scope">The scope.</param>
+		public RatpScope(MessageScope scope)
+		{
+			this.currentScope = scope;
+		}
+
+		/// <summary>
+		/// Send message 'GetTraffic' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <returns>Task of Response_traffic</returns>
+		/// <param name="cancellationToken">The CancellationToken that this task will observe.</param>		
+		/// <param name="context">The MessageContext of the received message.</param>
+		public Task<Response_traffic> GetTraffic(System.String type, System.String line, CancellationToken cancellationToken, out MessageContext context)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetTraffic<Response_traffic>(type, line, cancellationToken, out context);
+            return result.ContinueWith<Response_traffic>(task => (Response_traffic)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetTraffic' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <returns>Task of Response_traffic</returns>
+		/// <param name="context">The MessageContext of the received message.</param>
+		public Task<Response_traffic> GetTraffic(System.String type, System.String line, out MessageContext context)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetTraffic<Response_traffic>(type, line, out context);
+            return result.ContinueWith<Response_traffic>(task => (Response_traffic)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetTraffic' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <returns>Task of Response_traffic</returns>
+		/// <param name="cancellationToken">The CancellationToken that this task will observe.</param>
+		public Task<Response_traffic> GetTraffic(System.String type, System.String line, CancellationToken cancellationToken)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetTraffic<Response_traffic>(type, line, cancellationToken);
+            return result.ContinueWith<Response_traffic>(task => (Response_traffic)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetTraffic' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <returns>Task of Response_traffic</returns>
+		public Task<Response_traffic> GetTraffic(System.String type, System.String line)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetTraffic<Response_traffic>(type, line);
+            return result.ContinueWith<Response_traffic>(task => (Response_traffic)task.Result);
+		}
+
+
+		/// <summary>
+		/// Send message 'GetSchedule' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <param name="station">The 'station' parameter</param>
+		/// <param name="direction">The 'direction' parameter</param>
+		/// <returns>Task of System.Collections.Generic.List of Schedule</returns>
+		/// <param name="cancellationToken">The CancellationToken that this task will observe.</param>		
+		/// <param name="context">The MessageContext of the received message.</param>
+		public Task<System.Collections.Generic.List<Schedule>> GetSchedule(System.String type, System.String line, System.String station, System.String direction, CancellationToken cancellationToken, out MessageContext context)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetSchedule<System.Collections.Generic.List<Schedule>>(type, line, station, direction, cancellationToken, out context);
+            return result.ContinueWith<System.Collections.Generic.List<Schedule>>(task => (System.Collections.Generic.List<Schedule>)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetSchedule' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <param name="station">The 'station' parameter</param>
+		/// <param name="direction">The 'direction' parameter</param>
+		/// <returns>Task of System.Collections.Generic.List of Schedule</returns>
+		/// <param name="context">The MessageContext of the received message.</param>
+		public Task<System.Collections.Generic.List<Schedule>> GetSchedule(System.String type, System.String line, System.String station, System.String direction, out MessageContext context)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetSchedule<System.Collections.Generic.List<Schedule>>(type, line, station, direction, out context);
+            return result.ContinueWith<System.Collections.Generic.List<Schedule>>(task => (System.Collections.Generic.List<Schedule>)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetSchedule' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <param name="station">The 'station' parameter</param>
+		/// <param name="direction">The 'direction' parameter</param>
+		/// <returns>Task of System.Collections.Generic.List of Schedule</returns>
+		/// <param name="cancellationToken">The CancellationToken that this task will observe.</param>
+		public Task<System.Collections.Generic.List<Schedule>> GetSchedule(System.String type, System.String line, System.String station, System.String direction, CancellationToken cancellationToken)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetSchedule<System.Collections.Generic.List<Schedule>>(type, line, station, direction, cancellationToken);
+            return result.ContinueWith<System.Collections.Generic.List<Schedule>>(task => (System.Collections.Generic.List<Schedule>)task.Result);
+		}
+
+		/// <summary>
+		/// Send message 'GetSchedule' to the current scope
+		/// </summary>
+		/// <param name="type">The 'type' parameter</param>
+		/// <param name="line">The 'line' parameter</param>
+		/// <param name="station">The 'station' parameter</param>
+		/// <param name="direction">The 'direction' parameter</param>
+		/// <returns>Task of System.Collections.Generic.List of Schedule</returns>
+		public Task<System.Collections.Generic.List<Schedule>> GetSchedule(System.String type, System.String line, System.String station, System.String direction)
+		{
+			Task<dynamic> result = this.currentScope.GetProxy().GetSchedule<System.Collections.Generic.List<Schedule>>(type, line, station, direction);
+            return result.ContinueWith<System.Collections.Generic.List<Schedule>>(task => (System.Collections.Generic.List<Schedule>)task.Result);
+		}
+
 	}
 }
 

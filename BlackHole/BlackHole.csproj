@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Constellation.Common, Version=1.8.0.0, Culture=neutral, PublicKeyToken=324a4f45ff674ee1, processorArchitecture=MSIL">
-      <HintPath>..\packages\Constellation.1.8.0.16088\lib\net45\Constellation.Common.dll</HintPath>
+      <HintPath>..\packages\Constellation.1.8.0.16182\lib\net45\Constellation.Common.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.AspNet.SignalR.Client, Version=2.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -71,7 +71,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties PackagesSelection="&lt;ArrayOfTupleOfstringstring xmlns:i=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns=&quot;http://schemas.datacontract.org/2004/07/System&quot;&gt;&lt;TupleOfstringstring&gt;&lt;m_Item1&gt;ROMAIN-MSI&lt;/m_Item1&gt;&lt;m_Item2&gt;GoogleTraffic&lt;/m_Item2&gt;&lt;/TupleOfstringstring&gt;&lt;/ArrayOfTupleOfstringstring&gt;" PublishMethod="ConstellationServer" PublishServer="http://localhost:8088" />
+      <UserProperties PublishServer="http://localhost:8088" PublishMethod="ConstellationServer" PackagesSelection="&lt;ArrayOfTupleOfstringstring xmlns:i=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns=&quot;http://schemas.datacontract.org/2004/07/System&quot;&gt;&lt;TupleOfstringstring&gt;&lt;m_Item1&gt;ROMAIN-MSI&lt;/m_Item1&gt;&lt;m_Item2&gt;Ratp&lt;/m_Item2&gt;&lt;/TupleOfstringstring&gt;&lt;TupleOfstringstring&gt;&lt;m_Item1&gt;ROMAIN-MSI&lt;/m_Item1&gt;&lt;m_Item2&gt;GoogleTraffic&lt;/m_Item2&gt;&lt;/TupleOfstringstring&gt;&lt;/ArrayOfTupleOfstringstring&gt;" />
     </VisualStudio>
   </ProjectExtensions>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
