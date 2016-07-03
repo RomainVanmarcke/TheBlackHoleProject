@@ -373,7 +373,7 @@ namespace BlackHole
             }
         }
 
-        //traductions Anglais -> Fracais de la meteo
+        //traductions Anglais -> Francais de la meteo
         private string tempsbdd()
         {
             string s = meteo.DynamicValue.currently.summary;
