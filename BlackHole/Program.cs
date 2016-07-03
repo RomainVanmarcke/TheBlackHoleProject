@@ -502,7 +502,7 @@ namespace BlackHole
 
 
         }
-        +// Fonction PushBullet
+        // Fonction PushBullet
         void PushBullet()
         {
             MessageScope.Create("PushBullet").GetProxy().SendPush(new { Title = "BlackBullet", Message = pushbulletArg.arg1 });
