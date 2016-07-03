@@ -13,7 +13,7 @@ namespace BlackConnector
         {
             PackageHost.Start<Program>(args);
         }
-
+        // Permet de push un SO à partir de BlackApp
         [MessageCallback(IsHidden = true)]
         void SOModifier(string name, object value)
         {

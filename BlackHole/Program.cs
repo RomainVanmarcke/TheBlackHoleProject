@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BlackHole.GoogleTraffic.MessageCallbacks;
+using BlackHole.GoogleTraffic.MessageCallbacks; // On importe les MC des packages GoogleTraffic et Ratp pour pouvoir les utiliser dans nos propres fonctions Ratp et GoogleTraffic
 using BlackHole.Ratp.MessageCallbacks;
 
 namespace BlackHole
@@ -23,22 +23,22 @@ namespace BlackHole
         private StateObjectNotifier Acc { get; set; }
 
         // Abonnements aux state objects info
-        [StateObjectLink("ROMAIN-MSI", "HWMonitor", "/intelcpu/0/temperature/0")]
+        [StateObjectLink("SENTINEL-NAME", "HWMonitor", "/intelcpu/0/temperature/0")]
         private StateObjectNotifier tempCPU { get; set; }
 
-        [StateObjectLink("ROMAIN-MSI", "HWMonitor", "/intelcpu/0/load/0")]
+        [StateObjectLink("SENTINEL-NAME", "HWMonitor", "/intelcpu/0/load/0")]
         private StateObjectNotifier loadCPU { get; set; }
 
-        [StateObjectLink("ROMAIN-MSI", "HWMonitor", "/ram/load/0")]
+        [StateObjectLink("SENTINEL-NAME", "HWMonitor", "/ram/load/0")]
         private StateObjectNotifier loadRAM { get; set; }
 
-        [StateObjectLink("ROMAIN-MSI", "ForecastIO", "Lille")]
+        [StateObjectLink("SENTINEL-NAME", "ForecastIO", "Lille")]
         private StateObjectNotifier meteo { get; set; }
 
-        [StateObjectLink("ROMAIN-MSI", "DayInfo", "NameDay")]
+        [StateObjectLink("SENTINEL-NAME", "DayInfo", "NameDay")]
         private StateObjectNotifier nameday { get; set; }
 
-        [StateObjectLink("ROMAIN-MSI", "DayInfo", "SunInfo")]
+        [StateObjectLink("SENTINEL-NAME", "DayInfo", "SunInfo")]
         private StateObjectNotifier suninfo { get; set; }
 
 
@@ -88,7 +88,7 @@ namespace BlackHole
                         switch (menu)
                         {
                             case "home":
-                                PackageHost.PushStateObject("TextToSpeech", new { text = "Raiglage" });
+                                PackageHost.PushStateObject("TextToSpeech", new { text = "Réglages" });
                                 Thread.Sleep(1000);
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "settings" });
                                 break;
@@ -141,12 +141,12 @@ namespace BlackHole
                         switch (menu)
                         {
                             case "home":
-                                PackageHost.PushStateObject("TextToSpeech", new { text = "Peush Boulette" });
+                                PackageHost.PushStateObject("TextToSpeech", new { text = "Push Bullet" });
                                 Thread.Sleep(1000);
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "pushbullet" });
                                 break;
                             case "Request":
-                                PackageHost.PushStateObject("TextToSpeech", new { text = "gougueule trafic, départ" });
+                                PackageHost.PushStateObject("TextToSpeech", new { text = "Google traffic, départ" });
                                 Thread.Sleep(2500);
                                 PackageHost.PushStateObject("NeedRecognition", new { Reason = "googleTraffic1" });
                                 menu = "Home";
@@ -161,10 +161,6 @@ namespace BlackHole
                                 break;
                         }
                     }
-                    //else
-                    //{
-
-                    //}
                 }
             };
         }
@@ -231,8 +227,8 @@ namespace BlackHole
                     break;
             }
         }
-
-        string Converter(string result)
+        // Met sous la bonne forme les résultats de la reconnaissance vocale (sans "é" et "un" = "1")
+        string Converter(string result)  
         {
             if (result.Contains("métro"))
             {
@@ -296,7 +292,8 @@ namespace BlackHole
             }
         }
 
-        void Settings()
+        // Enregistre les réglages de l'annonciateur des infos en analysant le résultat de la reconnaissance vocale associée
+        void Settings()             
         {
             string text = settingsArg.arg1;
             text.ToLower();
@@ -466,26 +463,11 @@ namespace BlackHole
                 return "";
             }
         }
-
+        // Fonction RATP planning  
+        // ATTENTION : il ne doit pas y avoir d'accents ni de chiffres écrit en toutes lettres dans les arguments de la fonction GetSchedule
         void RatpGetSchedule()
         {
             string annonce = "les prochaines arrivees: ";
-            PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetSchedule avec comme type: { ratpPlanningArg.arg1}, comme ligne: {ratpPlanningArg.arg2}, comme station: {ratpPlanningArg.arg3} et comme destination: {ratpPlanningArg.arg4}");
-            //string s;
-            //MessageScope.Create("Ratp").OnSagaResponse(result =>
-            //{
-            //    for (int i = 0; i < 4; i++)
-            //    {
-            //        s = result.Data[i].message;
-            //        if (s.Contains("mn"))
-            //        {
-            //            s = $"{s[0]}{s[1]} minutes";
-            //        };
-            //        annonce = $"{annonce} {s}, ";
-            //    }
-            //}).GetProxy().GetSchedule(new { type = ratpPlanningArg.arg1, line = ratpPlanningArg.arg2, station = ratpPlanningArg.arg3, direction = ratpPlanningArg.arg4 });
-            //PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
-
             var x = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetSchedule(type: ratpPlanningArg.arg1, line: ratpPlanningArg.arg2, station: ratpPlanningArg.arg3, direction: ratpPlanningArg.arg4);
             if (x.Wait(5000) && x.IsCompleted)
             {
@@ -501,12 +483,11 @@ namespace BlackHole
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
             }
         }
-
+        // Fonction RATP traffic
+        // ATTENTION : il ne doit pas y avoir d'accents ni de chiffres écrit en toutes lettres dans les arguments de la fonction GetTraffic
         void RatpGetTraffic()
         {
             string annonce = "Je n'ai pas reçu de réponse";
-            PackageHost.WriteInfo($"J'ai exécuté la fonction RatpGetTraffic avec comme type: { ratpTrafficArg.arg1} et comme ligne: {ratpTrafficArg.arg2}");
-
             var t = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetTraffic(type: ratpTrafficArg.arg1 , line: ratpTrafficArg.arg2);
             if (t.Wait(5000) && t.IsCompleted)
             {
@@ -521,23 +502,19 @@ namespace BlackHole
 
 
         }
-
+        +// Fonction PushBullet
         void PushBullet()
         {
-            //MessageScope.Create("PushBullet").GetProxy().SendPush(new { Iden = "CONFIG", Title = "BlackBullet", Message = pushbulletArg.arg1 }); // NE FONCTIONNE PAS AVEC UN IDEN ???
             MessageScope.Create("PushBullet").GetProxy().SendPush(new { Title = "BlackBullet", Message = pushbulletArg.arg1 });
-
         }
-
+        // Fonction GoogleTraffic
         void GoogleTraffic()
         {
             string annonce = "";
-            PackageHost.WriteInfo($"J'ai exécuté la fonction GoogleTraffic avec comme départ: {googleTrafficArg.arg1} et comme arrivée: {googleTrafficArg.arg2}");
             var u = MyConstellation.PackageInstances.ROMAIN_MSI_GoogleTraffic.CreateGoogleTrafficScope().GetRoutes(googleTrafficArg.arg1, googleTrafficArg.arg2);
-
             if (u.Wait(15000) && u.IsCompleted)
             {
-                var bestroute = u.Result.OrderBy(k => k.TimeWithTraffic).FirstOrDefault();
+                var bestroute = u.Result.OrderBy(k => k.TimeWithTraffic).FirstOrDefault();  // On récupère seulement la route la plus rapide
                 annonce = $"Pour aller de {googleTrafficArg.arg1} a {googleTrafficArg.arg2}, il faut voyager {bestroute.Name}, le temps de trajet avec traffic sera de {bestroute.InfoTraffic}, la distance est de : {bestroute.DistanceString}";
                 PackageHost.PushStateObject("TextToSpeech", new { text = annonce });
             }
