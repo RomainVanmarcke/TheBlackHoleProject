@@ -468,7 +468,7 @@ namespace BlackHole
         void RatpGetSchedule()
         {
             string annonce = "les prochaines arrivees: ";
-            var x = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetSchedule(type: ratpPlanningArg.arg1, line: ratpPlanningArg.arg2, station: ratpPlanningArg.arg3, direction: ratpPlanningArg.arg4);
+            var x = MyConstellation.PackageInstances.SENTINEL_NAME_Ratp.CreateRatpScope().GetSchedule(type: ratpPlanningArg.arg1, line: ratpPlanningArg.arg2, station: ratpPlanningArg.arg3, direction: ratpPlanningArg.arg4); // Remplacer "SENTINEL_NAME" par le nom de votre Sentinelle
             if (x.Wait(5000) && x.IsCompleted)
             {
                 foreach (var arrivees in x.Result)
@@ -488,7 +488,7 @@ namespace BlackHole
         void RatpGetTraffic()
         {
             string annonce = "Je n'ai pas reçu de réponse";
-            var t = MyConstellation.PackageInstances.ROMAIN_MSI_Ratp.CreateRatpScope().GetTraffic(type: ratpTrafficArg.arg1 , line: ratpTrafficArg.arg2);
+            var t = MyConstellation.PackageInstances.SENTINEL_NAME_Ratp.CreateRatpScope().GetTraffic(type: ratpTrafficArg.arg1 , line: ratpTrafficArg.arg2); // Remplacer "SENTINEL_NAME" par le nom de votre Sentinelle
             if (t.Wait(5000) && t.IsCompleted)
             {
                 annonce = $"{t.Result.message} {t.Result.line}";
@@ -511,7 +511,7 @@ namespace BlackHole
         void GoogleTraffic()
         {
             string annonce = "";
-            var u = MyConstellation.PackageInstances.ROMAIN_MSI_GoogleTraffic.CreateGoogleTrafficScope().GetRoutes(googleTrafficArg.arg1, googleTrafficArg.arg2);
+            var u = MyConstellation.PackageInstances.SENTINEL_NAME_GoogleTraffic.CreateGoogleTrafficScope().GetRoutes(googleTrafficArg.arg1, googleTrafficArg.arg2); // Remplacer SENTINEL_NAME par le nom de votre Sentinelle
             if (u.Wait(15000) && u.IsCompleted)
             {
                 var bestroute = u.Result.OrderBy(k => k.TimeWithTraffic).FirstOrDefault();  // On récupère seulement la route la plus rapide
